@@ -18,7 +18,7 @@
 <!-- Thin circular cut to mimic original style -->
 <circle cx="0" cy="0" r="120" fill="none" stroke="#000000" stroke-opacity="0.08" stroke-width="6"/>
 
-  </g>  <!-- Brand text --><text x="340" y="190" font-family="Montserrat, Arial, Helvetica, sans-serif" font-weight="800" font-size="140" letter-spacing="6" fill="#12C7C4">HAYASAKA</text>
+  </g>  <!-- Brand text --><text x="340" y="190" font-family="Montserrat, Arial, Helvetica, sans-serif" font-weight="800" font-size="140" letter-spacing="6" fill="#12C7C4">BLISIC</text>
 
   <!-- Optional subtle glow (kept lightweight for SVG) -->  <defs>
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
