@@ -2,7 +2,6 @@ import React from "react";
 import logoWhite from "../../assets/logoWhite.png";
 import Languages from "./Languages";
 import Favourites from "./Favourites";
-import { FaGithub } from "react-icons/fa";
 import { MdOutlineMenu } from "react-icons/md";
 import Image from "next/image";
 import Link from "next/link";
@@ -53,21 +52,6 @@ const Sidebar = ({ showNav, setShowNav }) => {
         </div>
       </div>
       <div className=" mb-28 text-gray-200 mx-3 flex gap-3">
-        <Link href="/dmca">
-          <p className="hover:border border-gray-200 p-1 font-medium w-fit rounded cursor-pointer text-sm">
-            DMCA
-          </p>
-        </Link>
-        <a
-          href="https://discord.gg/jH7HpVQbH3"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <p className=" hover:border border-gray-200 p-1 font-medium w-fit rounded cursor-pointer text-sm flex items-center gap-1">
-            <FaGithub />
-            Github
-          </p>
-        </a>
       </div>
     </div>
   );
