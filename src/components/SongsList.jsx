@@ -19,7 +19,8 @@ import {
 } from "@/services/playlistApi";
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { MdOutlineDeleteOutline } from "react-icons/md";
+import { MdOutlineDeleteOutline, MdPlaylistAdd } from "react-icons/md";
+import CreatePlaylistModal from "./CreatePlaylistModal";
 
 const SongsList = ({
   SongData,
@@ -32,6 +33,7 @@ const SongsList = ({
   console.log("SongData", SongData);
   const { activeSong } = useSelector((state) => state.player);
   const [showMenu, setShowMenu] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [playlists, setPlaylists] = useState([]);
   const dispatch = useDispatch();
 
@@ -89,6 +91,11 @@ const SongsList = ({
 
   return (
     <>
+      <CreatePlaylistModal 
+        show={showCreateModal} 
+        setShow={setShowCreateModal} 
+        setPlaylists={setPlaylists} 
+      />
       <div className="mt-5">
         {!loading && SongData?.length > 0 ? (
           SongData?.map((song, index) => (
@@ -175,23 +182,37 @@ const SongsList = ({
                         >
                           <MdOutlineDeleteOutline size={20} /> Remove
                         </button>
-                      ) : playlists?.length > 0 ? (
-                        playlists?.map((playlist, index) => (
+                      ) : (
+                        <>
                           <button
-                            key={index}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleAddToPlaylist(song?.id, playlist._id);
+                              setShowMenu(false);
+                              setShowCreateModal(true);
                             }}
-                            className="text-sm font-semibold flex gap-1 items-center hover:underline"
+                            className="text-sm font-bold text-[#00e6e6] flex gap-1 items-center hover:underline mb-1"
                           >
-                            {playlist?.name}
+                            <MdPlaylistAdd size={18} /> Create New
                           </button>
-                        ))
-                      ) : (
-                        <p className="text-sm font-semibold flex gap-1 items-center">
-                          No Playlist
-                        </p>
+                          {playlists?.length > 0 ? (
+                            playlists?.map((playlist, index) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToPlaylist(song?.id, playlist._id);
+                                }}
+                                className="text-sm font-semibold flex gap-1 items-center hover:underline truncate w-full text-left"
+                              >
+                                {playlist?.name}
+                              </button>
+                            ))
+                          ) : (
+                            <p className="text-sm font-semibold flex gap-1 items-center italic text-gray-400">
+                              No Playlists
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
