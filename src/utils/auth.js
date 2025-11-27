@@ -6,11 +6,16 @@ import dbConnect from "@/utils/dbconnect";
 // check if user is logged in
 export default async function auth(req) {
     const token = await getToken({ req, secret: process.env.JWT_SECRET });
+    
+    // Fallback: If no token, check for __Secure-next-auth.session-token
     if (!token) {
-        return null
+        // Log headers for debugging
+        // console.log("Req Headers:", req.headers);
+        return null; 
     }
+    
     try {
-        dbConnect();
+        await dbConnect(); // Await db connection
         const user = await User.findOne({ email: token.email });
         if (!user) {
             return null

@@ -20,7 +20,7 @@ const Sidebar = ({ showNav, setShowNav }) => {
         <div className=" flex mt-3">
           <MdOutlineMenu
             onClick={() => setShowNav(false)}
-            className=" mx-4 text-2xl lg:text-3xl my-auto text-white cursor-pointer"
+            className=" ml-4 mr-2 text-2xl lg:text-3xl my-auto text-white cursor-pointer"
           />
           <div className=" flex justify-center items-center">
             <Link href="/">
@@ -28,7 +28,7 @@ const Sidebar = ({ showNav, setShowNav }) => {
                 onClick={() => {
                   dispatch(setProgress(100));
                 }}
-                className="text-white text-2xl font-bold lg:py-2 flex items-center justify-center w-[139px] h-[31px] lg:h-[62px] lg:w-[190px]"
+                className="text-white text-2xl font-bold lg:py-2 flex items-center justify-start w-[100px] h-[31px] lg:h-[62px] lg:w-[150px]"
               >
                 Music
               </div>

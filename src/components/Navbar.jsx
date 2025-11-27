@@ -18,11 +18,11 @@ const Navbar = () => {
         <div className=' flex'>
           <MdOutlineMenu onClick={
             () => setShowNav(true)
-          } className=' mx-4 text-2xl lg:text-3xl my-auto cursor-pointer' />
+          } className=' ml-4 mr-2 text-2xl lg:text-3xl my-auto cursor-pointer' />
           <div className=' flex justify-center items-center'>
             <Link href='/'>
               <div onClick={() => { dispatch(setProgress(100)) }}
-                className='text-white text-2xl font-bold lg:py-2 flex items-center justify-center w-[135px] h-[30.741px] lg:h-[58px] lg:w-[190px]'>
+                className='text-white text-2xl font-bold lg:py-2 flex items-center justify-start w-[100px] h-[30.741px] lg:h-[58px] lg:w-[150px]'>
                 Music
               </div>
             </Link>
