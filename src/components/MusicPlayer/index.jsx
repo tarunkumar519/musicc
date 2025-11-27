@@ -177,6 +177,8 @@ const MusicPlayer = () => {
     }
   };
 
+  if (!activeSong?.name) return null;
+
   return (
     <div
       className={`relative overflow-scroll items-center lg:items-stretch lg:overflow-visible hideScrollBar sm:px-12  flex flex-col transition-all duration-100 ${
