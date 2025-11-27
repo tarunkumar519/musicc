@@ -117,30 +117,20 @@ export async function DELETE(req){
 
 // get all playlists
 export async function GET(req){
-    const token = await getToken({ req, secret: process.env.JWT_SECRET });
-    if (!token) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "User not logged in",
-                data: null
-            },
-            { status: 401 }
-        );
-    }
     try {
         await dbConnect();
-        const user = await User.findOne({ email: token.email });
+        const user = await auth(req);
         if (!user) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "User not found",
+                    message: "User not logged in",
                     data: null
                 },
-                { status: 404 }
+                { status: 401 }
             );
         }
+
         const userData = await UserData.findById(user.userData).populate("playlists");
         if (!userData) {
             return NextResponse.json(
