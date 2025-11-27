@@ -1,9 +1,7 @@
 import React from "react";
-import logoWhite from "../../assets/logoWhite.png";
 import Languages from "./Languages";
 import Favourites from "./Favourites";
 import { MdOutlineMenu } from "react-icons/md";
-import Image from "next/image";
 import Link from "next/link";
 import Profile from "./Profile";
 import { useDispatch } from "react-redux";
@@ -26,14 +24,14 @@ const Sidebar = ({ showNav, setShowNav }) => {
           />
           <div className=" flex justify-center items-center">
             <Link href="/">
-              <Image
+              <div
                 onClick={() => {
                   dispatch(setProgress(100));
                 }}
-                src={logoWhite}
-                alt="logo"
-                className=" lg:py-2  aspect-video w-[139px] h-[31px] lg:h-[62px] lg:w-[190px]"
-              />
+                className="text-white text-2xl font-bold lg:py-2 flex items-center justify-center w-[139px] h-[31px] lg:h-[62px] lg:w-[190px]"
+              >
+                Music
+              </div>
             </Link>
           </div>
         </div>
