@@ -10,13 +10,14 @@ html {
 
 body,
 .gradient {
-  background: rgb(100, 201, 215);
-  background: linear-gradient(180deg, rgba(100, 201, 215, 0.8996848739495799) 0%, rgba(0, 8, 20, 1) 32%);
+  background: #000000;
+  background: linear-gradient(180deg, #1f1f1f 0%, #000000 40%);
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
 
