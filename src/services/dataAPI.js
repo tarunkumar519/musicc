@@ -57,15 +57,66 @@ export async function getplaylistData(id) {
 }
 
 // get Lyrics data
-export async function getlyricsData(id) {
+export async function getlyricsData(song) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SAAVN_API}/api/songs/${id}/lyrics`
+    if (!song?.name) return { success: false };
+    
+    const trackName = song.name;
+    const artistName = song.artists?.primary?.[0]?.name || "";
+    const duration = song.duration; // duration in seconds
+
+    // 1. Try LrcLib "get" endpoint (exact match)
+    let url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artistName)}&track_name=${encodeURIComponent(trackName)}`;
+    if (duration) {
+       url += `&duration=${duration}`;
+    }
+
+    let response = await fetch(url);
+    
+    if (response.ok) {
+        const data = await response.json();
+        if (data && data.plainLyrics) {
+             return { success: true, data: { lyrics: data.plainLyrics.replace(/\n/g, "<br>") } };
+        }
+    }
+    
+    // 2. Fallback to LrcLib "search" endpoint
+    const searchResponse = await fetch(
+        `https://lrclib.net/api/search?q=${encodeURIComponent(trackName + " " + artistName)}`
     );
-    const data = await response.json();
-    return data;
+    
+    if (searchResponse.ok) {
+        const searchData = await searchResponse.json();
+        // Find best match based on duration if possible
+        let match = null;
+        if (duration) {
+             match = searchData.find(item => Math.abs(item.duration - duration) < 5);
+        }
+        if (!match && searchData.length > 0) {
+             match = searchData[0];
+        }
+
+        if (match && match.plainLyrics) {
+            return { success: true, data: { lyrics: match.plainLyrics.replace(/\n/g, "<br>") } };
+        }
+    }
+
+    // 3. Fallback to original API if LrcLib fails (using ID if available)
+    if (song.id) {
+         const oldResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_SAAVN_API}/api/songs/${song.id}/lyrics`
+         );
+         const oldData = await oldResponse.json();
+         if (oldData?.success) {
+            return oldData;
+         }
+    }
+
+    return { success: false, message: "No lyrics found" };
+
   } catch (error) {
     console.log(error);
+    return { success: false };
   }
 }
 

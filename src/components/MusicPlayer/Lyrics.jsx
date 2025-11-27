@@ -17,11 +17,11 @@ const Lyrics = ({ activeSong }) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const res = await getlyricsData(activeSong?.id);
+      const res = await getlyricsData(activeSong);
       setLyrics(res);
       setLoading(false);
     };
-    if (activeSong?.id) fetchData();
+    if (activeSong?.name) fetchData();
   }, [activeSong?.id]);
 
   const handleAutoAdd = (checked) => {
