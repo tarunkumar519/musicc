@@ -1,22 +1,23 @@
-import { getToken } from "next-auth/jwt";
+import { getServerSession } from "next-auth";
 import User from "@/models/User";
 import dbConnect from "@/utils/dbconnect";
-
+import { authOptions } from "@/utils/authOptions";
 
 // check if user is logged in
 export default async function auth(req) {
-    const token = await getToken({ req, secret: process.env.JWT_SECRET });
-    
-    // Fallback: If no token, check for __Secure-next-auth.session-token
-    if (!token) {
-        // Log headers for debugging
-        // console.log("Req Headers:", req.headers);
-        return null; 
+    // In App Router route handlers, getServerSession correctly retrieves the session
+    // It automatically looks at cookies in the request
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+        return null
     }
     
     try {
         await dbConnect(); // Await db connection
-        const user = await User.findOne({ email: token.email });
+        // We can just rely on session.user.email if we trust the session, 
+        // but fetching the full user object is safer if you need fresh DB data
+        const user = await User.findOne({ email: session.user.email });
         if (!user) {
             return null
         }
