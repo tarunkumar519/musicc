@@ -50,8 +50,10 @@ export default function RootLayout({ children }) {
             <TopProgressBar />
             <SongsHistory />
             <Navbar />
-            <Toaster />
-            {children}
+            <div className="pt-[70px]">
+              <Toaster />
+              {children}
+            </div>
             <div className="h-20"></div>
             <div className="fixed  bottom-0 left-0 right-0 flex backdrop-blur-lg rounded-t-3 z-50">
               <MusicPlayer />

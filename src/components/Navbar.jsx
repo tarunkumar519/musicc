@@ -14,7 +14,7 @@ const Navbar = () => {
   const [showNav, setShowNav] = React.useState(false);
   return (
     <>
-      <div className='bg-[#020813] h-[70px] text-white flex justify-between relative sticky top-0 z-50'>
+      <div className='bg-[#020813] w-full h-[70px] text-white flex justify-between fixed top-0 left-0 z-50'>
         <div className=' flex'>
           <MdOutlineMenu onClick={
             () => setShowNav(true)
