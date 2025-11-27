@@ -23,7 +23,10 @@ export const metadata = {
     "https://res.cloudinary.com/dbr73rpz9/image/upload/v1690380865/images/logo-color_noktgr.png",
   url: "https://blisic.vercel.app/",
   type: "website",
-  icons: [{ rel: "icon", url: Favicon.src }],
+  icons: {
+    icon: Favicon.src,
+    apple: "/icon-192x192.png",
+  },
   site_name: "Music",
   manifest: "/manifest.json",
 };
