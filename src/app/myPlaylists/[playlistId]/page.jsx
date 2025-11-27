@@ -11,7 +11,7 @@ const page = ({params}) => {
   const [loading, setLoading] = useState(true);
   const [songs, setSongs] = useState([]);
   const [playlist, setPlaylist] = useState({});
-  const { status } = useSession();
+  const { status, data: session } = useSession();
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -35,9 +35,7 @@ const page = ({params}) => {
       <span className="loader"></span>
     </div>
   }
-  if (status === 'unauthenticated') {
-    redirect('/login');
-  }
+  
   return (
     <div className='mx-auto relative flex flex-col w-11/12 text-white min-h-screen '>
       <h1 className='text-6xl font-semibold mt-10'>{playlist?.name}</h1>
@@ -45,7 +43,7 @@ const page = ({params}) => {
       {songs?.length === 0 && loading === false ?
         <h1 className='text-xl font-semibold mt-10'>Playlist is Empty</h1>
         :
-        <SongsList SongData={songs} loading={false} playlistID={playlist?._id} isUserPlaylist={true} setSongs={setSongs} />
+        <SongsList SongData={songs} loading={false} playlistID={playlist?._id} isUserPlaylist={session?.user?.id === playlist?.user} setSongs={setSongs} />
       }
     </div>
   )

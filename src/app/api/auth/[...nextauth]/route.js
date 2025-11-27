@@ -45,16 +45,22 @@ const options = {
   secret: process.env.JWT_SECRET,
 
   callbacks: {
-    // async session({ session}) {
-    //     const  sessionUser  = await User.findOne({ email: session.user.email });
-    //     if (sessionUser) {
-    //         session.user.id = sessionUser._id;
-    //         session.userName = sessionUser.userName;
-    //         session.imageUrl = sessionUser.imageUrl;
-    //         session.isVerified = sessionUser.isVerified;
-    //     }
-    //     return session;
-    // },
+    async session({ session}) {
+        try {
+            await dbConnect();
+            const  sessionUser  = await User.findOne({ email: session.user.email });
+            if (sessionUser) {
+                session.user.id = sessionUser._id;
+                session.userName = sessionUser.userName;
+                session.imageUrl = sessionUser.imageUrl;
+                session.isVerified = sessionUser.isVerified;
+            }
+            return session;
+        } catch (e) {
+            console.error(e);
+            return session;
+        }
+    },
 
     async signIn({ account, profile }) {
       if (account.provider === "google") {

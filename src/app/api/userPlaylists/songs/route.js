@@ -172,20 +172,7 @@ export async function DELETE(req){
 export async function GET(req){
     const { searchParams } = new URL(req.url);
     const playlistID = searchParams.get("playlist");
-    // console.log('playlistID', playlistID);
-    // console.log('searchParams', searchParams);
     try {
-        const user = await auth(req);
-        if (!user) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "User not logged in",
-                    data: null
-                },
-                { status: 404 }
-            );
-        }
         await dbConnect();
         const playlist = await Playlist.findById(playlistID);
         if (!playlist) {
@@ -196,16 +183,6 @@ export async function GET(req){
                     data: null
                 },
                 { status: 404 }
-            );
-        }
-        if (playlist.user.toString() !== user._id.toString()) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Unauthorized",
-                    data: null
-                },
-                { status: 401 }
             );
         }
         return NextResponse.json(
