@@ -6,6 +6,7 @@ import {
   prevSong,
   playPause,
   setFullScreen,
+  setActiveSong,
 } from "../../redux/features/playerSlice";
 import Controls from "./Controls";
 import Player from "./Player";
@@ -14,7 +15,6 @@ import Track from "./Track";
 import VolumeBar from "./VolumeBar";
 import FullscreenTrack from "./FullscreenTrack";
 import Lyrics from "./Lyrics";
-import Downloader from "./Downloader";
 import { HiOutlineChevronDown } from "react-icons/hi";
 import { addFavourite, getFavourite } from "@/services/dataAPI";
 import { useSession } from "next-auth/react";
@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import FavouriteButton from "./FavouriteButton";
 import getPixels from "get-pixels";
 import { extractColors } from "extract-colors";
+import { getParty, updateParty } from "@/services/partyApi";
 
 const MusicPlayer = () => {
   const {
@@ -31,6 +32,7 @@ const MusicPlayer = () => {
     isActive,
     isPlaying,
     fullScreen,
+    partyId,
   } = useSelector((state) => state.player);
   const { isTyping } = useSelector((state) => state.loadingBar);
   const [duration, setDuration] = useState(0);
@@ -46,8 +48,54 @@ const MusicPlayer = () => {
   const router = useRouter();
   const [bgColor, setBgColor] = useState();
 
+  // Party Sync Logic
   useEffect(() => {
-    if (currentSongs?.length) dispatch(playPause(true));
+    let interval;
+    if (partyId) {
+      interval = setInterval(async () => {
+        const res = await getParty(partyId);
+        if (res.success) {
+          const party = res.party;
+          
+          // 1. Sync Song
+          if (party.currentSong?.id && party.currentSong.id !== activeSong?.id) {
+             // Dispatch new song. We use a dummy queue or the party queue.
+             // Note: update redux without triggering immediate play if we want to wait for sync?
+             // But setActiveSong sets isActive=true.
+             dispatch(setActiveSong({ song: party.currentSong, data: party.queue, i: 0 }));
+          }
+
+          // 2. Sync Play/Pause
+          if (party.isPlaying !== isPlaying) {
+             dispatch(playPause(party.isPlaying));
+          }
+
+          // 3. Sync Time
+          if (party.isPlaying) {
+             // Calculate expected time: party.progress + (now - party.lastUpdated)
+             const timePassed = (Date.now() - party.lastUpdated) / 1000;
+             const expectedTime = party.progress + timePassed;
+             
+             // If drift is > 2 seconds, seek
+             if (Math.abs(expectedTime - appTime) > 2.5) {
+                 // console.log("Syncing time...", expectedTime, appTime);
+                 setSeekTime(expectedTime);
+             }
+          } else {
+             // If paused, ensure we are at the pause spot
+             if (Math.abs(party.progress - appTime) > 1) {
+                 setSeekTime(party.progress);
+             }
+          }
+        }
+      }, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [partyId, activeSong, isPlaying, appTime, dispatch]);
+
+
+  useEffect(() => {
+    if (currentSongs?.length && !partyId) dispatch(playPause(true));
   }, [currentIndex]);
 
   useEffect(() => {
@@ -115,9 +163,17 @@ const MusicPlayer = () => {
     };
   }, [handleKeyPress]);
 
-  const handlePlayPause = (e) => {
+  const handlePlayPause = async (e) => {
     e?.stopPropagation();
     if (!isActive) return;
+
+    if (partyId) {
+       // In party mode, we request the change to the server
+       await updateParty(partyId, "PLAY_PAUSE", { isPlaying: !isPlaying, progress: appTime });
+       // Optimistic update
+       dispatch(playPause(!isPlaying));
+       return;
+    }
 
     if (isPlaying) {
       dispatch(playPause(false));
@@ -126,8 +182,14 @@ const MusicPlayer = () => {
     }
   };
 
-  const handleNextSong = (e) => {
+  const handleNextSong = async (e) => {
     e?.stopPropagation();
+    
+    if (partyId) {
+        await updateParty(partyId, "NEXT", {});
+        return;
+    }
+
     dispatch(playPause(false));
 
     if (!shuffle) {
@@ -230,9 +292,6 @@ const MusicPlayer = () => {
               handleAddToFavourite={handleAddToFavourite}
               style={"mb-4"}
             />
-            <div className={`mb-3 sm:hidden flex items-center justify-center`}>
-              <Downloader activeSong={activeSong} fullScreen={fullScreen} />
-            </div>
           </div>
           <Controls
             isPlaying={isPlaying}
@@ -257,6 +316,11 @@ const MusicPlayer = () => {
             max={duration}
             fullScreen={fullScreen}
             onInput={(event) => setSeekTime(event.target.value)}
+            onSeekEnd={async (time) => {
+                if (partyId) {
+                    await updateParty(partyId, "SEEK", { progress: parseFloat(time) });
+                }
+            }}
             setSeekTime={setSeekTime}
             appTime={appTime}
           />

@@ -20,6 +20,7 @@ import {
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { MdOutlineDeleteOutline } from "react-icons/md";
+import { addToPartyQueue, updateParty } from "@/services/partyApi";
 
 const SongsList = ({
   SongData,
@@ -28,14 +29,19 @@ const SongsList = ({
   isUserPlaylist,
   playlistID,
   setSongs,
-}) => {
+  }) => {
   console.log("SongData", SongData);
-  const { activeSong } = useSelector((state) => state.player);
+  const { activeSong, partyId } = useSelector((state) => state.player);
   const [showMenu, setShowMenu] = useState(false);
   const [playlists, setPlaylists] = useState([]);
   const dispatch = useDispatch();
 
-  const handlePlayClick = (song, index) => {
+  const handlePlayClick = async (song, index) => {
+    if (partyId) {
+       await updateParty(partyId, "SET_SONG", { song: song });
+       toast.success(`Playing ${song.name} in Party`);
+       return;
+    }
     dispatch(setActiveSong({ song, data: SongData, i: index }));
     dispatch(setFullScreen(true));
     dispatch(playPause(true));

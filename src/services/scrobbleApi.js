@@ -48,11 +48,43 @@ export const getSession = async (token) => {
 export const scrobble = async (song, sessionKey) => {
   if (!song || !sessionKey) return;
 
-  const artist = song.artists?.primary?.[0]?.name || song.primaryArtists;
-  const track = song.name;
+  // Extract artist name
+  // Priority:
+  // 1. song.artists.primary[0].name (Array of objects)
+  // 2. song.primaryArtists (String or Array)
+  // 3. song.singers (String)
+  // 4. song.artist (String - sometimes used in generic objects)
+  let artist = null;
+
+  if (song.artists?.primary?.[0]?.name) {
+    artist = song.artists.primary[0].name;
+  } else if (typeof song.primaryArtists === 'string') {
+    // If it's a string like "Artist1, Artist2", take the first one or the whole string?
+    // Last.fm usually prefers the primary artist. Saavn often gives "A, B".
+    // Let's try to split by comma and take the first one if it looks like a list
+    // But sometimes the artist name might contain a comma? Unlikely for names.
+    // However, for scrobbling, exact match is better.
+    // If we send "Artist1, Artist2", Last.fm might create a new artist entry.
+    // Let's take the first one if comma separated.
+    artist = song.primaryArtists.split(',')[0].trim();
+  } else if (song.singers) {
+    artist = song.singers.split(',')[0].trim();
+  } else if (song.artist) {
+    artist = song.artist;
+  }
+  
+  // Clean up artist name (remove html entities if any, though unlikely from API JSON)
+  if (artist) {
+      artist = artist.replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+  }
+
+  const track = song.name ? song.name.replace(/&amp;/g, '&').replace(/&quot;/g, '"') : null;
   const timestamp = Math.floor(Date.now() / 1000);
 
-  if (!artist || !track) return;
+  if (!artist || !track) {
+      console.log("Scrobble failed: Missing artist or track", { artist, track, song });
+      return;
+  }
 
   const params = {
     method: "track.scrobble",

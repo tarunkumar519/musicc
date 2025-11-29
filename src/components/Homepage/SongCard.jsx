@@ -10,10 +10,12 @@ import {
 } from "../../redux/features/playerSlice";
 import { getRecommendedSongs, getSongData } from "@/services/dataAPI";
 import { useSelector } from "react-redux";
+import { addToPartyQueue, updateParty } from "@/services/partyApi";
+import { toast } from "react-hot-toast";
 
 const SongCard = ({ song, isPlaying, activeSong }) => {
   const [loading, setLoading] = useState(false);
-  const { currentSongs, autoAdd } = useSelector((state) => state.player);
+  const { currentSongs, autoAdd, partyId } = useSelector((state) => state.player);
 
   const dispatch = useDispatch();
 
@@ -28,6 +30,14 @@ const SongCard = ({ song, isPlaying, activeSong }) => {
       setLoading(true);
       const Data = await getSongData(song?.id);
       const songData = await Data?.[0];
+
+      if (partyId) {
+        await updateParty(partyId, "SET_SONG", { song: songData });
+        toast.success(`Playing ${songData.name} in Party`);
+        setLoading(false);
+        return;
+      }
+
       const recommendedSongs = await getRecommendedSongs(
         songData?.primaryArtistsId,
         songData?.id

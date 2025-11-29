@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { MdSkipNext, MdSkipPrevious } from "react-icons/md";
 import { BsFillPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { TbRepeat, TbRepeatOnce, TbArrowsShuffle } from "react-icons/tb";
-import Downloader from "./Downloader";
 import FavouriteButton from "./FavouriteButton";
 import { BiAddToQueue } from "react-icons/bi";
 import { addSongToPlaylist, getUserPlaylists } from "@/services/playlistApi";
@@ -132,11 +131,6 @@ const Controls = ({
         }}
         className={`${!fullScreen ? "hidden sm:block" : "m-3"} cursor-pointer`}
       />
-      {activeSong?.downloadUrl?.[4]?.url && (
-        <div className=" hidden sm:block mt-1 ">
-          <Downloader activeSong={activeSong} fullScreen={fullScreen} />
-        </div>
-      )}
       {showCreateModal && <PlaylistModal show={showCreateModal} setShow={setShowCreateModal} onSuccess={getPlaylists} />}
     </div>
   );

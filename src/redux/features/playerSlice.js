@@ -8,12 +8,16 @@ const initialState = {
   activeSong: {},
   fullScreen: false,
   autoAdd: false,
+  partyId: null,
 };
 
 const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
+    setPartyId: (state, action) => {
+      state.partyId = action.payload;
+    },
     setActiveSong: (state, action) => {
       if(action.payload.song){
       state.activeSong = action.payload.song;
@@ -63,6 +67,6 @@ const playerSlice = createSlice({
   },
 });
 
-export const { setActiveSong, nextSong, prevSong, playPause, setFullScreen, setAutoAdd } = playerSlice.actions;
+export const { setActiveSong, nextSong, prevSong, playPause, setFullScreen, setAutoAdd, setPartyId } = playerSlice.actions;
 
 export default playerSlice.reducer;
