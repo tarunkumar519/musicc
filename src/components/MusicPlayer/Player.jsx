@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable jsx-a11y/media-has-caption */
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { scrobble } from "@/services/scrobbleApi";
 
 const Player = ({
@@ -19,6 +19,8 @@ const Player = ({
   appTime,
 }) => {
   const ref = useRef(null);
+  const [hasScrobbled, setHasScrobbled] = useState(false);
+
   // eslint-disable-next-line no-unused-expressions
   if (ref.current) {
     if (isPlaying) {
@@ -28,24 +30,22 @@ const Player = ({
     }
   }
 
-  // Scrobble on end
+  // Reset scrobble status when song changes
   useEffect(() => {
-    const handleScrobble = async () => {
+    setHasScrobbled(false);
+  }, [activeSong?.id]);
+
+  const handleTimeUpdate = (event) => {
+    onTimeUpdate(event);
+    
+    // Scrobble after 20% of duration
+    if (!hasScrobbled && event.target.duration > 0 && event.target.currentTime > event.target.duration * 0.2) {
         const sk = localStorage.getItem("lastfm_session_key");
         if (sk) {
-            await scrobble(activeSong, sk);
+            scrobble(activeSong, sk);
+            setHasScrobbled(true);
         }
     }
-    // We hook into onEnded logic. But `onEnded` prop is passed to audio tag.
-    // We can wrap the onEnded prop logic.
-  }, []);
-
-  const handleEnded = () => {
-      const sk = localStorage.getItem("lastfm_session_key");
-      if (sk) {
-          scrobble(activeSong, sk);
-      }
-      onEnded();
   }
 
   // media session metadata:
@@ -113,8 +113,8 @@ const Player = ({
         src={activeSong?.downloadUrl?.[4]?.url}
         ref={ref}
         loop={repeat}
-        onEnded={handleEnded}
-        onTimeUpdate={onTimeUpdate}
+        onEnded={onEnded}
+        onTimeUpdate={handleTimeUpdate}
         onLoadedData={onLoadedData}
       />
     </>
