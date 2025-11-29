@@ -31,6 +31,8 @@ export const metadata = {
   manifest: "/manifest.json",
 };
 
+import AuthGuard from "@/components/AuthGuard";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
@@ -50,17 +52,19 @@ export default function RootLayout({ children }) {
       <body className={poppins.className}>
         <Providers>
           <AuthProvider>
-            <TopProgressBar />
-            <SongsHistory />
-            <Navbar />
-            <div className="pt-[70px]">
-              <Toaster />
-              {children}
-            </div>
-            <div className="h-20"></div>
-            <div className="fixed  bottom-0 left-0 right-0 flex backdrop-blur-lg rounded-t-3 z-50">
-              <MusicPlayer />
-            </div>
+            <AuthGuard>
+              <TopProgressBar />
+              <SongsHistory />
+              <Navbar />
+              <div className="pt-[70px]">
+                <Toaster />
+                {children}
+              </div>
+              <div className="h-20"></div>
+              <div className="fixed  bottom-0 left-0 right-0 flex backdrop-blur-lg rounded-t-3 z-50">
+                <MusicPlayer />
+              </div>
+            </AuthGuard>
           </AuthProvider>
         </Providers>
       </body>

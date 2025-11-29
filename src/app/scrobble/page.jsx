@@ -9,6 +9,7 @@ const Scrobble = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
+  const setup = searchParams.get("setup");
 
   useEffect(() => {
     // Check local storage for existing session
@@ -49,8 +50,10 @@ const Scrobble = () => {
 
   return (
     <div className="w-11/12 mx-auto mt-32 min-h-screen text-white">
+      {setup && <h1 className="text-5xl font-bold mb-4 text-[#00e6e6]">One last step...</h1>}
       <h1 className="text-4xl font-bold mb-8">Last.fm Scrobbling</h1>
       <div className="bg-white/5 p-8 rounded-lg max-w-lg">
+        {setup && <p className="mb-4 text-yellow-400 font-semibold">You must set up Last.fm scrobbling to continue playing music.</p>}
         <p className="mb-6 text-lg">
           Connect your Last.fm account to automatically scrobble the music you listen to.
         </p>
