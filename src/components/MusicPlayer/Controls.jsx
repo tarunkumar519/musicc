@@ -54,58 +54,6 @@ const Controls = ({
 
   return (
     <div className="flex items-center justify-around md:w-80 text-lg lg:w-80 2xl:w-80 gap-4 sm:gap-0 relative">
-      <div className="relative">
-        <BiAddToQueue
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowMenu(!showMenu);
-          }}
-          title="Add to Playlist"
-          size={25}
-          color={"white"}
-          className={`${
-            !fullScreen ? "hidden" : "block"
-          } cursor-pointer`}
-        />
-        {showMenu && fullScreen && (
-          <div
-            onClick={() => setShowMenu(false)}
-            className="absolute text-white bottom-[130%] left-[-50px] bg-black/80 backdrop-blur-lg rounded-lg p-3 w-40 flex flex-col gap-2 z-[100]"
-          >
-            <p className="text-sm font-semibold flex gap-1 border-b border-white items-center pb-1">
-              Add to Playlist
-            </p>
-            <div className="max-h-40 overflow-y-auto hideScrollBar flex flex-col gap-2">
-              {playlists?.length > 0 ? (
-                playlists?.map((playlist, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToPlaylist(activeSong?.id, playlist._id);
-                    }}
-                    className="text-sm font-semibold flex gap-1 items-center hover:underline text-left truncate"
-                  >
-                    {playlist?.name}
-                  </button>
-                ))
-              ) : (
-                <p className="text-xs text-gray-300">No Playlists</p>
-              )}
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowCreateModal(true);
-                setShowMenu(false);
-              }}
-              className="text-xs font-bold flex gap-1 items-center justify-center border border-white rounded p-1 mt-1 hover:bg-white/10"
-            >
-              <FaPlus size={10} /> Create New
-            </button>
-          </div>
-        )}
-      </div>
       <FavouriteButton
         favouriteSongs={favouriteSongs}
         activeSong={activeSong}

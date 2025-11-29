@@ -1,18 +1,18 @@
 "use client";
-import { getRecommendedSongs, getlyricsData } from "@/services/dataAPI";
-import { useState } from "react";
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { getlyricsData } from "@/services/dataAPI";
+import { useState, useRef, useEffect } from "react";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import SongsList from "../SongsList";
-import { useDispatch } from "react-redux";
 import { setAutoAdd } from "@/redux/features/playerSlice";
 
-const Lyrics = ({ activeSong }) => {
+const Lyrics = ({ activeSong, appTime }) => {
   const dispatch = useDispatch();
   const { currentSongs, autoAdd } = useSelector((state) => state.player);
   const [lyrics, setLyrics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("queue");
+  const lyricsContainerRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +25,6 @@ const Lyrics = ({ activeSong }) => {
   }, [activeSong?.id]);
 
   const handleAutoAdd = (checked) => {
-    console.log(autoAdd);
     if (checked) {
       dispatch(setAutoAdd(true));
       localStorage.setItem("autoAdd", true);
@@ -34,6 +33,67 @@ const Lyrics = ({ activeSong }) => {
       localStorage.setItem("autoAdd", false);
     }
   };
+
+  // Helper to parse LRC timestamp to seconds
+  const parseTime = (timeStr) => {
+    const parts = timeStr.split(":");
+    const min = parseFloat(parts[0]);
+    const sec = parseFloat(parts[1]);
+    return min * 60 + sec;
+  };
+
+  // Logic to determine current synced line
+  const getCurrentLineIndex = () => {
+    if (!lyrics?.data?.syncedLyrics || !appTime) return -1;
+    const lines = lyrics.data.syncedLyrics;
+    // syncedLyrics format from LrcLib is typically array of { time: 12.34, lyrics: "text" } if pre-parsed or just string
+    // But dataAPI returns raw string or object? 
+    // Wait, LrcLib returns `syncedLyrics` as a string: "[00:12.00] line... \n [00:15.00] line..."
+    // My dataAPI logic returns `syncedLyrics` directly from LrcLib response.
+    
+    // I need to parse the syncedLyrics string if it's a string.
+    // Let's assume it is a string in standard LRC format.
+    
+    // BUT wait, dataAPI.js returns `syncedLyrics: data.syncedLyrics`. LrcLib `syncedLyrics` IS a string.
+    // So I need to parse it here or in dataAPI. I'll parse here to keep dataAPI simple.
+    
+    return -1;
+  };
+
+  // Memoized parsed lyrics
+  const [parsedLyrics, setParsedLyrics] = useState([]);
+
+  useEffect(() => {
+    if (lyrics?.data?.syncedLyrics) {
+      const raw = lyrics.data.syncedLyrics;
+      const lines = raw.split("\n").map(line => {
+        const match = line.match(/^\[(\d{2}:\d{2}\.\d{2})\](.*)/);
+        if (match) {
+          return { time: parseTime(match[1]), text: match[2] };
+        }
+        return null;
+      }).filter(Boolean);
+      setParsedLyrics(lines);
+    } else {
+      setParsedLyrics([]);
+    }
+  }, [lyrics]);
+
+  // Find active line index
+  const activeLineIndex = parsedLyrics.findIndex((line, i) => {
+    const nextLine = parsedLyrics[i + 1];
+    return appTime >= line.time && (!nextLine || appTime < nextLine.time);
+  });
+
+  // Auto scroll
+  useEffect(() => {
+    if (activeTab === "lyrics" && activeLineIndex !== -1 && lyricsContainerRef.current) {
+      const activeElement = lyricsContainerRef.current.children[activeLineIndex];
+      if (activeElement) {
+        activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [activeLineIndex, activeTab]);
 
   return (
     <div
@@ -66,11 +126,28 @@ const Lyrics = ({ activeSong }) => {
       <div>
         {activeTab === "lyrics" ? (
           lyrics?.success ? (
-            <div className="text-white text-sm sm:text-base p-4 sm:p-0 mt-5 md:w-[450px] md:h-[530px] overflow-y-scroll hideScrollBar text-center">
-              {lyrics?.data?.lyrics?.split("<br>").map((line, index) => {
-                return <p key={index}>{line}</p>;
-              })}
-            </div>
+            parsedLyrics.length > 0 ? (
+               <div ref={lyricsContainerRef} className="text-white text-sm sm:text-base p-4 sm:p-0 mt-5 md:w-[450px] md:h-[530px] overflow-y-scroll hideScrollBar text-center flex flex-col gap-4">
+                  {parsedLyrics.map((line, index) => (
+                    <p
+                      key={index}
+                      className={`transition-all duration-300 ${
+                        index === activeLineIndex
+                          ? "text-[#00e6e6] font-bold scale-110 origin-center my-4"
+                          : "text-gray-400 opacity-60"
+                      }`}
+                    >
+                      {line.text}
+                    </p>
+                  ))}
+               </div>
+            ) : (
+                <div className="text-white text-sm sm:text-base p-4 sm:p-0 mt-5 md:w-[450px] md:h-[530px] overflow-y-scroll hideScrollBar text-center">
+                {lyrics?.data?.lyrics?.split("<br>").map((line, index) => {
+                    return <p key={index}>{line}</p>;
+                })}
+                </div>
+            )
           ) : (
             <div className="text-white text-lg p-4 sm:p-0 mt-5 md:w-[450px] md:h-[530px] overflow-y-scroll hideScrollBar text-center">
               No Lyrics Found

@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { useRef, useEffect } from "react";
+import { scrobble } from "@/services/scrobbleApi";
 
 const Player = ({
   activeSong,
@@ -25,6 +26,26 @@ const Player = ({
     } else {
       ref.current.pause();
     }
+  }
+
+  // Scrobble on end
+  useEffect(() => {
+    const handleScrobble = async () => {
+        const sk = localStorage.getItem("lastfm_session_key");
+        if (sk) {
+            await scrobble(activeSong, sk);
+        }
+    }
+    // We hook into onEnded logic. But `onEnded` prop is passed to audio tag.
+    // We can wrap the onEnded prop logic.
+  }, []);
+
+  const handleEnded = () => {
+      const sk = localStorage.getItem("lastfm_session_key");
+      if (sk) {
+          scrobble(activeSong, sk);
+      }
+      onEnded();
   }
 
   // media session metadata:
@@ -92,7 +113,7 @@ const Player = ({
         src={activeSong?.downloadUrl?.[4]?.url}
         ref={ref}
         loop={repeat}
-        onEnded={onEnded}
+        onEnded={handleEnded}
         onTimeUpdate={onTimeUpdate}
         onLoadedData={onLoadedData}
       />

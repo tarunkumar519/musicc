@@ -31,8 +31,10 @@ const VolumeBar = ({
   };
 
   useEffect(() => {
-    getPlaylists();
-  }, [showCreateModal]);
+    if (showMenu) {
+        getPlaylists();
+    }
+  }, [showMenu, showCreateModal]);
 
   // add song to playlist
   const handleAddToPlaylist = async (song, playlistID) => {

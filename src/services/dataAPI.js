@@ -75,6 +75,10 @@ export async function getlyricsData(song) {
     
     if (response.ok) {
         const data = await response.json();
+        // Return synced lyrics if available
+        if (data && data.syncedLyrics) {
+             return { success: true, data: { lyrics: data.plainLyrics.replace(/\n/g, "<br>"), syncedLyrics: data.syncedLyrics } };
+        }
         if (data && data.plainLyrics) {
              return { success: true, data: { lyrics: data.plainLyrics.replace(/\n/g, "<br>") } };
         }
@@ -96,8 +100,13 @@ export async function getlyricsData(song) {
              match = searchData[0];
         }
 
-        if (match && match.plainLyrics) {
-            return { success: true, data: { lyrics: match.plainLyrics.replace(/\n/g, "<br>") } };
+        if (match) {
+            if (match.syncedLyrics) {
+                return { success: true, data: { lyrics: match.plainLyrics.replace(/\n/g, "<br>"), syncedLyrics: match.syncedLyrics } };
+            }
+            if (match.plainLyrics) {
+                return { success: true, data: { lyrics: match.plainLyrics.replace(/\n/g, "<br>") } };
+            }
         }
     }
 

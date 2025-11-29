@@ -47,6 +47,9 @@ const Sidebar = ({ showNav, setShowNav }) => {
           <hr className="border-gray-400 w-[95%] mx-auto" />
           <Playlists setShowNav={setShowNav} />
           <hr className="border-gray-400 w-[95%] mx-auto" />
+          <div className="text-white px-6 py-4 cursor-pointer hover:text-gray-300">
+             <Link href="/scrobble">Scrobbling</Link>
+          </div>
         </div>
       </div>
       <div className=" mb-28 text-gray-200 mx-3 flex gap-3">

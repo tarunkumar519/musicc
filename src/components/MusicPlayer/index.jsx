@@ -290,7 +290,7 @@ const MusicPlayer = () => {
       </div>
       {fullScreen && (
         <div className=" lg:hidden">
-          <Lyrics activeSong={activeSong} currentSongs={currentSongs} />
+          <Lyrics activeSong={activeSong} currentSongs={currentSongs} appTime={appTime} />
         </div>
       )}
     </div>

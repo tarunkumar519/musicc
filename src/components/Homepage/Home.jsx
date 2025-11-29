@@ -141,6 +141,24 @@ const Home = () => {
         }
       </SwiperLayout>
 
+      {/* Top Albums */}
+      <SwiperLayout title={"Top Albums"}>
+        {
+          loading ? (
+            <SongCardSkeleton />
+          ) : (
+            data?.albums?.map(
+              (song) =>
+              (
+                <SwiperSlide key={song?.id}>
+                  <SongCard song={song} activeSong={activeSong} isPlaying={isPlaying} />
+                </SwiperSlide>
+              )
+            )
+          )
+        }
+      </SwiperLayout>
+
     </div>
   );
 };
