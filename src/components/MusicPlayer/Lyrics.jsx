@@ -67,7 +67,8 @@ const Lyrics = ({ activeSong, appTime }) => {
     if (lyrics?.data?.syncedLyrics) {
       const raw = lyrics.data.syncedLyrics;
       const lines = raw.split("\n").map(line => {
-        const match = line.match(/^\[(\d{2}:\d{2}\.\d{2})\](.*)/);
+        // Match both [mm:ss.xx] and [mm:ss.xxx]
+        const match = line.match(/^\[(\d+:\d+\.\d+)\](.*)/);
         if (match) {
           return { time: parseTime(match[1]), text: match[2] };
         }

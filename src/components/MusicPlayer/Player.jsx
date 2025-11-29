@@ -19,7 +19,7 @@ const Player = ({
   appTime,
 }) => {
   const ref = useRef(null);
-  const [hasScrobbled, setHasScrobbled] = useState(false);
+  const hasScrobbledRef = useRef(false);
 
   // eslint-disable-next-line no-unused-expressions
   if (ref.current) {
@@ -32,18 +32,21 @@ const Player = ({
 
   // Reset scrobble status when song changes
   useEffect(() => {
-    setHasScrobbled(false);
+    hasScrobbledRef.current = false;
   }, [activeSong?.id]);
 
   const handleTimeUpdate = (event) => {
     onTimeUpdate(event);
     
     // Scrobble after 20% of duration
-    if (!hasScrobbled && event.target.duration > 0 && event.target.currentTime > event.target.duration * 0.2) {
+    if (!hasScrobbledRef.current && event.target.duration > 0 && event.target.currentTime > event.target.duration * 0.2) {
+        // Double check ref to prevent race conditions
+        if (hasScrobbledRef.current) return;
+        
         const sk = localStorage.getItem("lastfm_session_key");
         if (sk) {
+            hasScrobbledRef.current = true;
             scrobble(activeSong, sk);
-            setHasScrobbled(true);
         }
     }
   }
