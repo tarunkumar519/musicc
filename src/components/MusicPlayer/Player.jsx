@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable jsx-a11y/media-has-caption */
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { scrobble } from "@/services/scrobbleApi";
 
 const Player = ({
@@ -19,7 +19,6 @@ const Player = ({
   appTime,
 }) => {
   const ref = useRef(null);
-  const hasScrobbledRef = useRef(false);
 
   // eslint-disable-next-line no-unused-expressions
   if (ref.current) {
@@ -30,26 +29,15 @@ const Player = ({
     }
   }
 
-  // Reset scrobble status when song changes
-  useEffect(() => {
-    hasScrobbledRef.current = false;
-  }, [activeSong?.id]);
-
-  const handleTimeUpdate = (event) => {
-    onTimeUpdate(event);
-    
-    // Scrobble after 20% of duration
-    if (!hasScrobbledRef.current && event.target.duration > 0 && event.target.currentTime > event.target.duration * 0.2) {
-        // Double check ref to prevent race conditions
-        if (hasScrobbledRef.current) return;
-        
-        const sk = localStorage.getItem("lastfm_session_key");
-        if (sk) {
-            hasScrobbledRef.current = true;
-            scrobble(activeSong, sk);
-        }
-    }
+  const handleEnded = () => {
+      const sk = localStorage.getItem("lastfm_session_key");
+      if (sk) {
+          scrobble(activeSong, sk);
+      }
+      onEnded();
   }
+
+  // media session metadata:
 
   // media session metadata:
   const mediaMetaData = activeSong.name
@@ -116,8 +104,8 @@ const Player = ({
         src={activeSong?.downloadUrl?.[4]?.url}
         ref={ref}
         loop={repeat}
-        onEnded={onEnded}
-        onTimeUpdate={handleTimeUpdate}
+        onEnded={handleEnded}
+        onTimeUpdate={onTimeUpdate}
         onLoadedData={onLoadedData}
       />
     </>

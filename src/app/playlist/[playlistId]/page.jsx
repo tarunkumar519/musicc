@@ -2,6 +2,8 @@ import PlayButton from "@/components/PlayButton";
 import SongList from "@/components/SongsList";
 import { getplaylistData, homePageData } from "@/services/dataAPI";
 
+import ShareButton from "@/components/ShareButton";
+
 const page = async ({ params }) => {
   // const [playlistData, setPlaylistData] = useState(null);
   // const [loading, setLoading] = useState(true);
@@ -39,10 +41,17 @@ const page = async ({ params }) => {
           />
         )}
 
-        <div className="lg:ml-10 text-gray-100 mt-12 flex flex-col gap-2 items-center md:items-start">
-          <h1 className=" text-xl lg:text-4xl font-bold">
-            {playlistData?.name}
-          </h1>
+        <div className="lg:ml-10 text-gray-100 mt-12 flex flex-col gap-2 items-center md:items-start w-full">
+          <div className="flex justify-between items-center w-full">
+            <h1 className=" text-xl lg:text-4xl font-bold">
+              {playlistData?.name}
+            </h1>
+            <ShareButton
+                title={playlistData?.name}
+                text={`Check out this playlist: ${playlistData?.name}`}
+                url={`https://play.tarunx.me/playlist/${params.playlistId}`}
+            />
+          </div>
           <ul className="flex items-center text-center flex-col gap-3 text-gray-300">
             <li className="text-sm font-semibold">
               {playlistData?.description}

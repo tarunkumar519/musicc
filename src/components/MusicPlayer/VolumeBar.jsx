@@ -34,7 +34,7 @@ const VolumeBar = ({
     if (showMenu) {
         getPlaylists();
     }
-  }, [showMenu, showCreateModal]);
+  }, [showMenu]);
 
   // add song to playlist
   const handleAddToPlaylist = async (song, playlistID) => {
@@ -154,6 +154,7 @@ const VolumeBar = ({
           className=" absolute w-screen h-screen bottom-0 left-0 z-[50]"
         ></div>
       )}
+      {showCreateModal && <PlaylistModal show={showCreateModal} setShow={setShowCreateModal} onSuccess={getPlaylists} />}
     </>
   );
 };

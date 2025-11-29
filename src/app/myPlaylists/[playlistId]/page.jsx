@@ -7,6 +7,8 @@ import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { getSinglePlaylist } from '@/services/playlistApi';
 
+import ShareButton from "@/components/ShareButton";
+
 const page = ({params}) => {
   const [loading, setLoading] = useState(true);
   const [songs, setSongs] = useState([]);
@@ -38,7 +40,14 @@ const page = ({params}) => {
   
   return (
     <div className='mx-auto relative flex flex-col w-11/12 text-white min-h-screen '>
-      <h1 className='text-6xl font-semibold mt-10'>{playlist?.name}</h1>
+      <div className="flex justify-between items-center mt-10">
+        <h1 className='text-6xl font-semibold'>{playlist?.name}</h1>
+        <ShareButton 
+            title={playlist?.name} 
+            text={`Check out this playlist: ${playlist?.name}`} 
+            url={typeof window !== 'undefined' ? window.location.href : ''} 
+        />
+      </div>
       <h2 className='text-3xl font-semibold mt-10'>Songs</h2>
       {songs?.length === 0 && loading === false ?
         <h1 className='text-xl font-semibold mt-10'>Playlist is Empty</h1>

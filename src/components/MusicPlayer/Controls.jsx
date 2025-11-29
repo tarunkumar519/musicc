@@ -40,7 +40,7 @@ const Controls = ({
 
   useEffect(() => {
     if (showMenu) getPlaylists();
-  }, [showMenu, showCreateModal]);
+  }, [showMenu]);
 
   const handleAddToPlaylist = async (song, playlistID) => {
     setShowMenu(false);
@@ -137,7 +137,7 @@ const Controls = ({
           <Downloader activeSong={activeSong} fullScreen={fullScreen} />
         </div>
       )}
-      <PlaylistModal show={showCreateModal} setShow={setShowCreateModal} onSuccess={getPlaylists} />
+      {showCreateModal && <PlaylistModal show={showCreateModal} setShow={setShowCreateModal} onSuccess={getPlaylists} />}
     </div>
   );
 };
